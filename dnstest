@@ -1,0 +1,31 @@
+import-csv .\dnstest.csv | foreach-object {
+    $ipAddr1 = $_.data
+    $ipAddr2 = $ipaddr1.Split('.')
+    if (( $ipAddr2[-4] -eq "10" ) -and ( $ipAddr2[-3] -eq "24" )) {
+        $ipAddr2[-3] = 25
+        $ipAddr2 = $ipAddr2 -join '.'
+        if ( $_ -notcontains $ipAddr2 ) {
+            $_.data = $ipAddr2
+            write-host $_.data        #writing out for testing
+        }
+    }
+}
+
+<#
+
+Name,Type,Data,Timestamp
+_tcp,,,
+_udp,,,
+com,,,
+server3,Alias (CNAME),stiff.place.thing.com,static
+server2,Alias (CNAME),stuff.place.thing.com,static
+server1,Alias (CNAME),morestuff.place.thing.com,static
+filestore5,Host (A),10.25.10.93,static
+filestore6,Host (A),10.24.10.94,static
+filestore6,Host (A),10.25.10.94,static
+webserver3,Host (A),10.24.10.91,static
+webserver3,Host (A),10.25.10.91,static
+dnsserver2,Host (A),10.24.10.92,static
+
+
+#>
