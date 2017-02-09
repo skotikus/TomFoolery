@@ -1,31 +1,24 @@
-import-csv .\dnstest.csv | foreach-object {
-    $ipAddr1 = $_.data
-    $ipAddr2 = $ipaddr1.Split('.')
-    if (( $ipAddr2[-4] -eq "10" ) -and ( $ipAddr2[-3] -eq "24" )) {
-        $ipAddr2[-3] = 25
-        $ipAddr2 = $ipAddr2 -join '.'
-        if ( $_ -notcontains $ipAddr2 ) {
-            $_.data = $ipAddr2
-            write-host $_.data        #writing out for testing
+$csv = Import-CSV .\dnstest.csv
+
+$csv | ForEach-Object {
+    # Store our current server
+    $serverName = $_.Name
+    # Make sure we have an IP address
+    if ( $_.data -as [ipaddress] ) {
+        # Split IP into octects
+        $currentIP = $_.data.split('.')
+        # Check if 2nd octet is 24 and 3rd is 10
+        if ( ($currentIP[1] -eq "24" ) -and ($currentIP[2] -eq "10") ) {
+            # Change second octet to 25
+            $newIP = $currentIP[0],25,$currentIP[2],$currentIP[3] -join '.'
+            # Check to see if Name/Data pair already exists in CSV
+            if ( ($csv.Where({$_.Name -eq $serverName}).Data) -notcontains $newIP ) {
+                # Update the CSV object
+                $_.data = $newIP
+                write-host $_.name " / " $_.data "is not in the list"
+            } else {
+                write-host $_.name " / " $_.data "are already in the list"
+            }
         }
     }
 }
-
-<#
-
-Name,Type,Data,Timestamp
-_tcp,,,
-_udp,,,
-com,,,
-server3,Alias (CNAME),stiff.place.thing.com,static
-server2,Alias (CNAME),stuff.place.thing.com,static
-server1,Alias (CNAME),morestuff.place.thing.com,static
-filestore5,Host (A),10.25.10.93,static
-filestore6,Host (A),10.24.10.94,static
-filestore6,Host (A),10.25.10.94,static
-webserver3,Host (A),10.24.10.91,static
-webserver3,Host (A),10.25.10.91,static
-dnsserver2,Host (A),10.24.10.92,static
-
-
-#>
