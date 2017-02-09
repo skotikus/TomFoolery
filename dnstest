@@ -1,24 +1,38 @@
+
+Get-Module DNSServer
 $csv = Import-CSV .\dnstest.csv
+$dnsResults = @()
+$changeCount = 0
+$dnsServer = "dc_server_name"
+$zone = "dns.zone"
+
 
 $csv | ForEach-Object {
-    # Store our current server
     $serverName = $_.Name
-    # Make sure we have an IP address
+    $recordType = $_.Type
+    $oldIP = $_.data
     if ( $_.data -as [ipaddress] ) {
-        # Split IP into octects
         $currentIP = $_.data.split('.')
-        # Check if 2nd octet is 24 and 3rd is 10
-        if ( ($currentIP[1] -eq "24" ) -and ($currentIP[2] -eq "10") ) {
-            # Change second octet to 25
+        if ( ($currentIP[1] -eq "24" ) -and ($currentIP[0] -eq "10") ) {
             $newIP = $currentIP[0],25,$currentIP[2],$currentIP[3] -join '.'
-            # Check to see if Name/Data pair already exists in CSV
             if ( ($csv.Where({$_.Name -eq $serverName}).Data) -notcontains $newIP ) {
-                # Update the CSV object
                 $_.data = $newIP
-                write-host $_.name " / " $_.data "is not in the list"
+                write-host $_.name " / " $_.data "DNS entry changed" -ForegroundColor "green"
+                <#
+                $dnsResults += New-Object PSObject -Property @{Name=$serverName;RecordType=$recordType;OldAddress=$oldIP;NewAddress=$newIP}
+                $new.RecordData.IPv4Address = [System.Net.IPAddress]::parse($newIP)
+                $new = $old = Get-DnsServerResourceRecord -ComputerName $dnsServer -ZoneName $zone -Name $serverName
+                Set-DnsServerResourceRecord -NewInputObject $new -OldInputObject $old -ZoneName $zone -ComputerName $dnsServer
+                #>
+                $ChangeCount ++
             } else {
-                write-host $_.name " / " $_.data "are already in the list"
+                write-host $_.name " / " $_.data "Exsist - No Change" -ForegroundColor "red"
             }
         }
     }
+ 
 }
+Write-Host "--------------------------"
+Write-Host "Changes made: $changeCount"
+Write-Host "--------------------------"
+$dnsResults | select Name, Recordtype, OldAddress, NewAddress | Export-Csv -NoTypeInformation .\dnsResults.csv
