@@ -1,10 +1,10 @@
-
+﻿
 Get-Module DNSServer
 $csv = Import-CSV .\dnstest.csv
 $dnsResults = @()
 $changeCount = 0
-$dnsServer = "dc_server_name"
-$zone = "dns.zone"
+#$dnsServer = "dc_server_name"
+#$zone = "dns.zone"
 
 
 $csv | ForEach-Object {
@@ -18,8 +18,8 @@ $csv | ForEach-Object {
             if ( ($csv.Where({$_.Name -eq $serverName}).Data) -notcontains $newIP ) {
                 $_.data = $newIP
                 write-host $_.name " / " $_.data "DNS entry changed" -ForegroundColor "green"
-                <#
                 $dnsResults += New-Object PSObject -Property @{Name=$serverName;RecordType=$recordType;OldAddress=$oldIP;NewAddress=$newIP}
+                <#
                 $new.RecordData.IPv4Address = [System.Net.IPAddress]::parse($newIP)
                 $new = $old = Get-DnsServerResourceRecord -ComputerName $dnsServer -ZoneName $zone -Name $serverName
                 Set-DnsServerResourceRecord -NewInputObject $new -OldInputObject $old -ZoneName $zone -ComputerName $dnsServer
