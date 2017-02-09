@@ -1,4 +1,17 @@
-﻿
+﻿<#
+Script by: Scott Forsyth
+Email: script@nurvox.com
+
+USE: Replace IP octet on large number of DNS files from a windows server 2008/2012 DNS export CSV
+
+- You should have the original export list
+- Run script (to test run with "-whatif" at the end of line 34
+
+-output is on shell and in CSV with changes made
+
+-to reverse run the DNSreverse.ps1 script
+#>
+
 Get-Module DNSServer
 $csv = Import-CSV .\dnstest.csv
 $dnsResults = @()

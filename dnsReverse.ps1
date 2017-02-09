@@ -1,4 +1,19 @@
-﻿
+﻿<#
+Script by: Scott Forsyth
+Email: script@nurvox.com
+
+USE: The revese of dnsreplace.ps1 script (used to replace IP octet on large number of DNS files from a windows server 2008/2012 DNS export CSV)
+
+- after running this you should have 4 CSV files (the original, the dnsreplaced CSV, the dnsrevsed CSV, and a new copy of the export to run diffs on)
+
+- Run script (to test run with "-whatif" at the end of line 34
+
+-output is on shell and in CSV with changes made
+
+#>
+
+
+
 #Get-Module DNSServer
 $csv = Import-CSV .\dnsResults.csv
 $dnsResults = @()
